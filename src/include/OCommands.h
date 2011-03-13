@@ -1,9 +1,9 @@
 #ifndef OCommands_h
 #define OCommands_h
 
-#include "../../../include/interfaces/ModuleInterface.h"
-#include "../../../include/core/Data.h"
-#include "../../../include/core/ModuleBase.h"
+#include "../../../../include/interfaces/ModuleInterface.h"
+#include "../../../../include/core/Data.h"
+#include "../../../../include/core/ModuleBase.h"
 #include <iostream>
 #include <algorithm>
 #include <string>

@@ -1,5 +1,5 @@
 #include "include/OCommands.h"
-#include "../../../include/core/Global.h"
+#include <core/Global.h>
 #include <iostream>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -21,16 +21,16 @@ OCommands::OCommands()
 OCommands::~OCommands()
 {
     stop();
-	Global::Instance().get_IrcData().DelConsumer(D);
-    delete D;
+	Global::Instance().get_IrcData().DelConsumer(mpDataInterface);
+    delete mpDataInterface;
 }
 
-void OCommands::Init()
+void OCommands::Init(DataInterface* pData)
 {
+	mpDataInterface = pData;
+	mpDataInterface->Init(false, false, false, true);
+    Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
     ocommandstrigger = Global::Instance().get_ConfigReader().GetString("ocommandstrigger");
-    D = new Data();
-    D->Init(false, false, false, true);
-    Global::Instance().get_IrcData().AddConsumer(D);
     BindInit();
 }
 
@@ -68,7 +68,7 @@ void OCommands::BindInit()
 void OCommands::stop()
 {
     run = false;
-    D->stop();
+    mpDataInterface->stop();
     std::cout << "OCommands::stop" << std::endl;
     privmsg_parse_thread->join();
     std::cout << "privmsg_parse_thread stopped" << std::endl;
@@ -86,7 +86,7 @@ void OCommands::parse_privmsg()
     std::vector< std::string > data;
     while(run)
     {
-        data = D->GetPrivmsgQueue();
+        data = mpDataInterface->GetPrivmsgQueue();
         PRIVMSG(data, ocommandstrigger);
     }
 }

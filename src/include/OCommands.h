@@ -38,8 +38,6 @@ private:
     void delobind(string nick, string auth, string command, string newbind, int oa);
     void addbind(string nick, string auth, string command, string newbind, int reqaccess, int oa);
     void delbind(string nick, string auth, string command, string newbind, int oa);
-    void addouser(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa);
-    void delouser(string nick, string auth, string reqnick, string reqauth, int oa);
     void changeolevel(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa);
     void ousers(string nick, int oa);
     void say(string chan, string nick, string auth, string saystring, int oa);

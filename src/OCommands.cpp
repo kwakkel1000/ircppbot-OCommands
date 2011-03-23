@@ -3,6 +3,9 @@
 #include <iostream>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
 
 extern "C" ModuleInterface* create()
 {
@@ -101,7 +104,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
         if (boost::iequals(command,"debug"))
         {
             U.Debug();
-            //C->Debug();
+            Global::Instance().get_Channels().Debug();
         }
 
         if (U.GetGod(nick) == 1)
@@ -141,20 +144,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
         {
             if (boost::iequals(command, binds[i]))
             {
-                if (boost::iequals(commands[i], "delouser"))
-                {
-                    if (U.GetGod(nick) == 1)
-                    {
-                        delouser(nick, auth, args[0], U.GetAuth(args[0]), oas[i]);
-                        overwatch(commands[i], command, chan, nick, auth, args);
-                    }
-                    else
-                    {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-                        Send(returnstring);
-                    }
-                }
-                if (boost::iequals(commands[i], "delchannel"))
+                if (boost::iequals(commands[i], "delchannel"))		//make chan the target. 1arg less needed
                 {
                     if (U.GetGod(nick) == 1)
                     {
@@ -229,19 +219,6 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
         {
             if (boost::iequals(command, binds[i]))
             {
-                if (boost::iequals(commands[i], "addouser"))
-                {
-                    if (U.GetGod(nick) == 1)
-                    {
-                        addouser(nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), oas[i]);
-                        overwatch(commands[i], command, chan, nick, auth, args);
-                    }
-                    else
-                    {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-                        Send(returnstring);
-                    }
-                }
                 if (boost::iequals(commands[i], "changeolevel"))
                 {
                     if (U.GetGod(nick) == 1)
@@ -281,7 +258,8 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
                         Send(returnstring);
                     }
                 }
-                if (boost::iequals(commands[i], "addchannel"))
+                if (boost::iequals(commands[i], "addchannel"))		//make chan the target. 1arg less needed
+
                 {
                     if (U.GetGod(nick) == 1)
                     {
@@ -457,30 +435,22 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
         cout << convertInt(oaccess) << endl;
         if (oaccess >= oa)
         {
-            if (C.GetCid(reqchan) == -1)
+            if (C.GetCid(reqchan) == "NULL")
             {
-                string sqlstring = "INSERT into channels ( channel ) VALUES ( '" + reqchan + "' );";
-                RawSql(sqlstring);
-                int uid = U.GetUid(reqnick);
-                int cid = -1;// = C->GetCid(reqchan);
-                vector< vector<string> > sql_result;
-                string sql_string = "select channels.id from channels where channels.channel = '" + reqchan + "';";
-                sql_result = RawSqlSelect(sql_string);
-                unsigned int i;
-                for (i = 0 ; i < sql_result.size() ; i++)
+				boost::uuids::uuid uuid = boost::uuids::random_generator()();
+				std::stringstream ss;
+				ss << uuid;
+				std::string ChannelUuid = ss.str();
+				std::cout << "ChannelUuid: " << ChannelUuid<< std::endl;
+                std::string UserUuid = U.GetUid(reqnick);
+				C.RegistrateChannel(ChannelUuid, reqchan);
+                if ((ChannelUuid != "NULL") && (UserUuid != "NULL"))
                 {
-                    cid = convertString(sql_result[i][0]);
-                }
-                if ((cid > -1) && (uid > -1))
-                {
-                    string sqlstring = "INSERT into users ( uid, cid, access) VALUES ( '" + convertInt(uid) + "', '" + convertInt(cid) + "', '" + convertInt(500) + "' );";
-                    RawSql(sqlstring);
+					C.AddUserToChannel(ChannelUuid, UserUuid, 500);
                 }
                 string joinstr = "JOIN " + reqchan + "\r\n";
                 Send(joinstr);
                 C.AddChannel(reqchan);
-                string whostring = "WHO " + reqchan + "\r\n";
-                Send(whostring);
                 returnstring = "NOTICE " + nick + " :" + irc_reply("addchannel", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$nick$", nick);
                 returnstring = irc_reply_replace(returnstring, "$auth$", auth);
@@ -507,25 +477,16 @@ void OCommands::delchannel(string chan, string nick, string auth, string reqchan
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
-        int cid = C.GetCid(reqchan);
+        std::string ChannelUuid = C.GetCid(reqchan);
         string sqlstring;
-        if (cid > -1)
+        if (ChannelUuid != "NULL")
         {
-            sqlstring = "DELETE from users where cid = '" + convertInt(cid) + "';";
-            RawSql(sqlstring);
-            sqlstring = "DELETE from channels where id = '" + convertInt(cid) + "';";
-            RawSql(sqlstring);
-            vector<string> auths = C.GetAuths(reqchan);
-            for (unsigned int i = 0; i < auths.size(); i++)
-            {
-                C.DelAuth(reqchan, auths[0]);
-            }
+			C.UnregistrateChannel(ChannelUuid);
             vector<string> nicks = C.GetNicks(reqchan);
-            for (unsigned int i = 0; i < auths.size(); i++)
+            for (unsigned int i = nicks.size()-1; i >= 0; i++)
             {
-                U.DelChannel(nicks[0], reqchan);
+                U.DelChannel(nicks[i], reqchan);
             }
-            C.DelChannel(reqchan);
             string partstr = "PART " + reqchan + "\r\n";
             Send(partstr);
             returnstring = "NOTICE " + nick + " :" + irc_reply("delchannel", U.GetLanguage(nick)) + "\r\n";
@@ -704,60 +665,6 @@ void OCommands::delbind(string nick, string auth, string command, string bind, i
         returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
-}
-
-void OCommands::addouser(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa)
-{/*
-    if (boost::iequals(reqauth,"NULL") != true)
-    {
-        if (U.GetOaccess(nick) >= addousera)
-        {
-
-        }
-        int access = C->GetAccess(chan, auth);
-        if (access > reqaccess || U.GetGod(nick) == 1)
-        {
-            if (C->AddAuth(chan, reqauth))
-            {
-                int uid = U.GetUid(reqnick);
-                int cid = C->GetCid(chan);
-                if ((cid > -1) && (uid > -1) && (reqaccess > 0))
-                {
-                    string sqlstring = "INSERT into users ( uid, cid, access) VALUES ( '" + convertInt(uid) + "', '" + convertInt(cid) + "', '" + convertInt(reqaccess) + "' );";
-                    C->SetAccess(chan, reqauth, reqaccess);
-                    RawSql(sqlstring);
-                    string sendstring = "NOTICE " + nick + " :user " + reqnick + "[" + reqauth + "] added to the userlist with " + convertInt(reqaccess) + " access\r\n";
-                    Send(sendstring);
-                }
-            }
-        }
-    }*/
-}
-
-void OCommands::delouser(string nick, string auth, string reqnick, string reqauth, int oa)
-{/*
-    if (boost::iequals(reqauth,"NULL") != true)
-    {
-        int access = C->GetAccess(chan, auth);
-        int tmpaccess = C->GetAccess(chan, reqauth);
-        string sqlstring;
-        if (tmpaccess > 0)
-        {
-            if (tmpaccess < access || U.GetGod(nick) == 1)
-            {
-                int uid = U.GetUid(reqnick);
-                int cid = C->GetCid(chan);
-                if ((cid > -1) && (uid > -1))
-                {
-                    string sqlstring = "DELETE from users where uid = '" + convertInt(uid) + "' AND cid = '" + convertInt(cid) + "';";
-                    C->DelAuth(chan, reqauth);
-                    RawSql(sqlstring);
-                    string sendstring = "NOTICE " + nick + " :user " + reqnick + "[" + reqauth + "] deleted from the userlist\r\n";
-                    Send(sendstring);
-                }
-            }
-        }
-    }*/
 }
 
 void OCommands::changeolevel(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa)

@@ -135,6 +135,19 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
                     ousers(nick, oas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
+                if (boost::iequals(commands[i], "delchannel"))
+                {
+                    if (U.GetGod(nick) == 1)
+                    {
+                        delchannel(chan, nick, auth, oas[i]);
+                        overwatch(commands[i], command, chan, nick, auth, args);
+                    }
+                    else
+                    {
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                        Send(returnstring);
+                    }
+                }
             }
         }
     }
@@ -144,7 +157,20 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
         {
             if (boost::iequals(command, binds[i]))
             {
-                if (boost::iequals(commands[i], "delchannel"))		//make chan the target. 1arg less needed
+                if (boost::iequals(commands[i], "addchannel"))
+                {
+                    if (U.GetGod(nick) == 1)
+                    {
+                        addchannel(chan, nick, auth, args[0], U.GetAuth(args[0]), oas[i]);
+                        overwatch(commands[i], command, chan, nick, auth, args);
+                    }
+                    else
+                    {
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                        Send(returnstring);
+                    }
+                }
+                /*if (boost::iequals(commands[i], "delchannel"))		//make chan the target. 1arg less needed
                 {
                     if (U.GetGod(nick) == 1)
                     {
@@ -156,7 +182,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
                         string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
-                }
+                }*/
             }
         }
     }
@@ -223,7 +249,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
                 {
                     if (U.GetGod(nick) == 1)
                     {
-                        changeolevel(nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]),oas[i]);
+                        changeolevel(nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
@@ -250,20 +276,6 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
                     if (U.GetGod(nick) == 1)
                     {
                         delbind(nick, auth, args[0], args[1], oas[i]);
-                        overwatch(commands[i], command, chan, nick, auth, args);
-                    }
-                    else
-                    {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-                        Send(returnstring);
-                    }
-                }
-                if (boost::iequals(commands[i], "addchannel"))		//make chan the target. 1arg less needed
-
-                {
-                    if (U.GetGod(nick) == 1)
-                    {
-                        addchannel(chan, nick, auth, args[0], args[1], U.GetAuth(args[1]), oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
@@ -424,7 +436,7 @@ void OCommands::raw(string nick, string auth, string dostring, int oa)
     }
 }
 
-void OCommands::addchannel(string chan, string nick, string auth, string reqchan, string reqnick, string reqauth, int oa)
+void OCommands::addchannel(string chan, string nick, string auth, string reqnick, string reqauth, int oa)
 {
     UsersInterface& U = Global::Instance().get_Users();
     ChannelsInterface& C = Global::Instance().get_Channels();
@@ -435,7 +447,7 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
         cout << convertInt(oaccess) << endl;
         if (oaccess >= oa)
         {
-            if (C.GetCid(reqchan) == "NULL")
+            if (C.GetCid(chan) == "NULL")
             {
 				boost::uuids::uuid uuid = boost::uuids::random_generator()();
 				std::stringstream ss;
@@ -443,20 +455,20 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
 				std::string ChannelUuid = ss.str();
 				std::cout << "ChannelUuid: " << ChannelUuid<< std::endl;
                 std::string UserUuid = U.GetUid(reqnick);
-				C.RegistrateChannel(ChannelUuid, reqchan);
+				C.RegistrateChannel(ChannelUuid, chan);
                 if ((ChannelUuid != "NULL") && (UserUuid != "NULL"))
                 {
 					C.AddUserToChannel(ChannelUuid, UserUuid, 500);
                 }
-                string joinstr = "JOIN " + reqchan + "\r\n";
+                string joinstr = "JOIN " + chan + "\r\n";
                 Send(joinstr);
-                C.AddChannel(reqchan);
+                C.AddChannel(chan);
                 returnstring = "NOTICE " + nick + " :" + irc_reply("addchannel", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$nick$", nick);
                 returnstring = irc_reply_replace(returnstring, "$auth$", auth);
                 returnstring = irc_reply_replace(returnstring, "$regnick$", reqnick);
-                returnstring = irc_reply_replace(returnstring, "$regauth$", reqchan);
-                returnstring = irc_reply_replace(returnstring, "$channel$", reqchan);
+                returnstring = irc_reply_replace(returnstring, "$regauth$", chan);
+                returnstring = irc_reply_replace(returnstring, "$channel$", chan);
                 Send(returnstring);
             }
         }
@@ -468,7 +480,7 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
     }
 }
 
-void OCommands::delchannel(string chan, string nick, string auth, string reqchan, int oa)
+void OCommands::delchannel(string chan, string nick, string auth, int oa)
 {
     UsersInterface& U = Global::Instance().get_Users();
     ChannelsInterface& C = Global::Instance().get_Channels();
@@ -477,26 +489,26 @@ void OCommands::delchannel(string chan, string nick, string auth, string reqchan
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
-        std::string ChannelUuid = C.GetCid(reqchan);
+        std::string ChannelUuid = C.GetCid(chan);
         string sqlstring;
         if (ChannelUuid != "NULL")
         {
 			C.UnregistrateChannel(ChannelUuid);
-            vector<string> nicks = C.GetNicks(reqchan);
+            vector<string> nicks = C.GetNicks(chan);
             for (unsigned int i = nicks.size()-1; i >= 0; i++)
             {
-                U.DelChannel(nicks[i], reqchan);
+                U.DelChannel(nicks[i], chan);
             }
-            string partstr = "PART " + reqchan + "\r\n";
+            string partstr = "PART " + chan + "\r\n";
             Send(partstr);
             returnstring = "NOTICE " + nick + " :" + irc_reply("delchannel", U.GetLanguage(nick)) + "\r\n";
-            returnstring = irc_reply_replace(returnstring, "$channel$", reqchan);
+            returnstring = irc_reply_replace(returnstring, "$channel$", chan);
             Send(returnstring);
         }
         else
         {
             returnstring = "NOTICE " + nick + " :" + irc_reply("delchannel_nochannel", U.GetLanguage(nick)) + "\r\n";
-            returnstring = irc_reply_replace(returnstring, "$channel$", reqchan);
+            returnstring = irc_reply_replace(returnstring, "$channel$", chan);
             Send(returnstring);
         }
     }

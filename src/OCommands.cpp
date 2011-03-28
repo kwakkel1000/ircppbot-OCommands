@@ -463,11 +463,21 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqnick
                 string joinstr = "JOIN " + chan + "\r\n";
                 Send(joinstr);
                 C.AddChannel(chan);
+				std::string whostring;
+				if (Global::Instance().get_ConfigReader().GetString("whoextra") == "true")
+				{
+					whostring = "WHO " + chan + " %ncaf\r\n";
+				}
+				else
+				{
+					whostring = "WHO " + chan + "\r\n";
+				}
+				Send(whostring);
                 returnstring = "NOTICE " + nick + " :" + irc_reply("addchannel", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$nick$", nick);
                 returnstring = irc_reply_replace(returnstring, "$auth$", auth);
                 returnstring = irc_reply_replace(returnstring, "$regnick$", reqnick);
-                returnstring = irc_reply_replace(returnstring, "$regauth$", chan);
+                returnstring = irc_reply_replace(returnstring, "$regauth$", reqauth);
                 returnstring = irc_reply_replace(returnstring, "$channel$", chan);
                 Send(returnstring);
             }
@@ -495,9 +505,9 @@ void OCommands::delchannel(string chan, string nick, string auth, int oa)
         {
 			C.UnregistrateChannel(ChannelUuid);
             vector<string> nicks = C.GetNicks(chan);
-            for (unsigned int i = nicks.size()-1; i >= 0; i++)
+            for (unsigned int i = nicks.size(); i > 0; i--)
             {
-                U.DelChannel(nicks[i], chan);
+                U.DelChannel(nicks[i-1], chan);
             }
             string partstr = "PART " + chan + "\r\n";
             Send(partstr);

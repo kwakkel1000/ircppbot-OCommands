@@ -1,5 +1,6 @@
 #include "include/OCommands.h"
 #include <core/Global.h>
+#include <core/DatabaseData.h>
 #include <iostream>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -34,11 +35,13 @@ void OCommands::Init(DataInterface* pData)
 	mpDataInterface->Init(false, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
     ocommandstrigger = Global::Instance().get_ConfigReader().GetString("ocommandstrigger");
+    DatabaseData::Instance().DatabaseData::AddBinds("OCommandsCommands");
     BindInit();
 }
 
 void OCommands::BindInit()
 {
+
     commands.clear();
     binds.clear();
     oas.clear();
@@ -99,6 +102,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
     cout << "OCommands" << endl;
     UsersInterface& U = Global::Instance().get_Users();
     string auth = U.GetAuth(nick);
+	std::cout << DatabaseData::Instance().GetCommandByBindNameAndBind("OCommandsCommands", command) << " " << DatabaseData::Instance().GetAccessByBindNameAndBind("OCommandsCommands", command) << std::endl;
     if (args.size() == 0)
     {
         if (boost::iequals(command,"debug"))

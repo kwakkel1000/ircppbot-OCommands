@@ -36,7 +36,7 @@ void OCommands::Init(DataInterface* pData)
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
     ocommandstrigger = Global::Instance().get_ConfigReader().GetString("ocommandstrigger");
     DatabaseData::Instance().DatabaseData::AddBinds("OCommandsCommands");
-    BindInit();
+    //BindInit();
 }
 
 void OCommands::BindInit()

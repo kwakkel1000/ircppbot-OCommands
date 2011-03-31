@@ -23,11 +23,8 @@ public:
 private:
 
     DataInterface* mpDataInterface;
-    void BindInit();
 
-    //void parse_raw();
     void parse_privmsg();
-    void ParseData(std::vector< std::string > data);
     void ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
 
     //functions
@@ -42,24 +39,13 @@ private:
     void ousers(string nick, int oa);
     void say(string chan, string nick, string auth, string saystring, int oa);
     void raw(string nick, string auth, string dostring, int oa);
-    void ocommands(string nick, string auth, int oa);
-
-    void DBChannelInfo(string data);
-
-    vector<string> commands;
-    vector<string> binds;
-    vector<int> oas;
-
-    vector<string> ccommands;
-    vector<string> cbinds;
-    vector<int> cas;
+    void ocommandscommands(std::string mNick, string auth, int oa);
 
 
     boost::mutex parse_mutex;
     bool run;
     std::string ocommandstrigger;
-    //vector<string> Data;
-    //boost::shared_ptr<boost::thread> raw_parse_thread;
+    std::string command_table;
     boost::shared_ptr<boost::thread> privmsg_parse_thread;
 };
 

@@ -790,10 +790,10 @@ void OCommands::ocommandscommands(string mNick, string auth, int oa)
 			sort (binds.begin(), binds.end());
 			for (unsigned int binds_it = 0; binds_it < binds.size(); binds_it++)
 			{
-				if (binds[binds_it] != "")
+				std::string bind_access = convertInt(DatabaseData::Instance().GetAccessByBindNameAndBind(command_table, binds[binds_it]));
+				std::string bind_command = DatabaseData::Instance().GetCommandByBindNameAndBind(command_table, binds[binds_it]);
+				if (bind_command != "")
 				{
-					std::string bind_access = convertInt(DatabaseData::Instance().GetAccessByBindNameAndBind(command_table, binds[binds_it]));
-					std::string bind_command = DatabaseData::Instance().GetCommandByBindNameAndBind(command_table, binds[binds_it]);
 					returnstring = "NOTICE " + mNick + " :";
 					returnstring = returnstring + fillspace(binds[binds_it], 20);
 					returnstring = returnstring + fillspace(bind_command, 20);

@@ -75,7 +75,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	std::cout << bind_command << " " << bind_access << std::endl;
 
 	//debug
-	if (bind_command == "debug")
+	if (boost::iequals(bind_command, "debug"))
 	{
 		if (args.size() == 0)
 		{
@@ -90,7 +90,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//ocommandscommands
-	if (bind_command == "ocommandscommands")
+	if (boost::iequals(bind_command, "ocommandscommands"))
 	{
 		if (args.size() == 0)
 		{
@@ -107,7 +107,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//god
-	if (bind_command == "god")
+	if (boost::iequals(bind_command, "god"))
 	{
 		if (args.size() == 0)
 		{
@@ -121,7 +121,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//delchannel
-	if (bind_command == "delchannel")
+	if (boost::iequals(bind_command, "delchannel"))
 	{
 		if (args.size() == 0)
 		{
@@ -143,7 +143,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//addchannel
-	if (bind_command == "addchannel")
+	if (boost::iequals(bind_command, "addchannel"))
 	{
 		if (args.size() == 1)
 		{
@@ -165,7 +165,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//say
-	if (bind_command == "say")
+	if (boost::iequals(bind_command, "say"))
 	{
 		if (args.size() >= 1)
 		{
@@ -196,7 +196,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//raw
-	if (bind_command == "raw")
+	if (boost::iequals(bind_command, "raw"))
 	{
 		if (args.size() >= 1)
 		{
@@ -227,7 +227,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//changeolevel
-	if (bind_command == "changeolevel")
+	if (boost::iequals(bind_command, "changeolevel"))
 	{
 		if (args.size() == 2)
 		{
@@ -249,7 +249,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//delobind
-	if (bind_command == "delobind")
+	if (boost::iequals(bind_command, "delobind"))
 	{
 		if (args.size() == 2)
 		{
@@ -271,7 +271,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//delbind
-	if (bind_command == "delbind")
+	if (boost::iequals(bind_command, "delbind"))
 	{
 		if (args.size() == 2)
 		{
@@ -293,7 +293,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//addobind
-	if (bind_command == "addobind")
+	if (boost::iequals(bind_command, "addobind"))
 	{
 		if (args.size() == 3)
 		{
@@ -315,7 +315,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//addbind
-	if (bind_command == "addbind")
+	if (boost::iequals(bind_command, "addbind"))
 	{
 		if (args.size() == 3)
 		{
@@ -337,7 +337,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 	}
 
 	//simulate
-	if (bind_command == "simulate")
+	if (boost::iequals(bind_command, "simulate"))
 	{
 		if (args.size() >= 3)
 		{

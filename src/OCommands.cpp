@@ -468,9 +468,9 @@ void OCommands::action(string chan, string nick, string auth, string saystring, 
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
-        string returnstr = "PRIVMSG " + chan + " :" + char(1) + "ACTION" + saystring + char(1) + "\r\n";
+        string returnstr = "PRIVMSG " + chan + " :" + char(1) + "ACTION " + saystring + char(1) + "\r\n";
         Send(returnstr);
-        returnstring = "NOTICE " + nick + " :" + irc_reply("say", U.GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("action", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
     else

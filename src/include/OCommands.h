@@ -38,6 +38,7 @@ private:
     void changeolevel(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa);
     void ousers(string nick, int oa);
     void say(string chan, string nick, string auth, string saystring, int oa);
+    void action(string chan, string nick, string auth, string saystring, int oa);
     void raw(string nick, string auth, string dostring, int oa);
     void ocommandscommands(std::string mNick, string auth, int oa);
 

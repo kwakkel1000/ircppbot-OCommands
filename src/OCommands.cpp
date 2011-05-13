@@ -67,7 +67,7 @@ void OCommands::parse_privmsg()
 
 void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
-    cout << "OCommands" << endl;
+    //cout << "OCommands" << endl;
     UsersInterface& U = Global::Instance().get_Users();
     std::string auth = U.GetAuth(nick);
     std::string bind_command = DatabaseData::Instance().GetCommandByBindNameAndBind(command_table, command);
@@ -181,6 +181,37 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 					saystring = saystring + args[args.size()-1];
 				}
 				say(chan, nick, auth, saystring, bind_access);
+			}
+			else
+			{
+				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+				Send(returnstring);
+			}
+		}
+		else
+		{
+			//help(bind_command);
+		}
+		overwatch(bind_command, command, chan, nick, auth, args);
+	}
+
+	// action
+	if (boost::iequals(bind_command, "action"))
+	{
+		if (args.size() >= 1)
+		{
+			if (U.GetGod(nick) == 1)
+			{
+				std::string saystring;
+				for (unsigned int j = 0; j < args.size()-1; j++)
+				{
+					saystring = saystring + args[j] + " ";
+				}
+				if (args.size() > 0)
+				{
+					saystring = saystring + args[args.size()-1];
+				}
+				action(chan, nick, auth, saystring, bind_access);
 			}
 			else
 			{
@@ -418,6 +449,26 @@ void OCommands::say(string chan, string nick, string auth, string saystring, int
     if (oaccess >= oa)
     {
         string returnstr = "PRIVMSG " + chan + " :" + saystring + "\r\n";
+        Send(returnstr);
+        returnstring = "NOTICE " + nick + " :" + irc_reply("say", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
+    }
+    else
+    {
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
+    }
+}
+
+void OCommands::action(string chan, string nick, string auth, string saystring, int oa)
+{
+    UsersInterface& U = Global::Instance().get_Users();
+    string returnstring;
+    int oaccess = U.GetOaccess(nick);
+    cout << convertInt(oaccess) << endl;
+    if (oaccess >= oa)
+    {
+        string returnstr = "PRIVMSG " + chan + " :" + char(1) + "ACTION" + saystring + char(1) + "\r\n";
         Send(returnstr);
         returnstring = "NOTICE " + nick + " :" + irc_reply("say", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);

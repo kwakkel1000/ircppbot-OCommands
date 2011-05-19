@@ -164,6 +164,50 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 		overwatch(bind_command, command, chan, nick, auth, args);
 	}
 
+	// joinchannel
+	if (boost::iequals(bind_command, "joinchannel"))
+	{
+		if (args.size() == 0)
+		{
+			if (U.GetGod(nick) == 1)
+			{
+				joinchannel(chan, nick, auth, bind_access);
+			}
+			else
+			{
+				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+				Send(returnstring);
+			}
+		}
+		else
+		{
+			//help(bind_command);
+		}
+		overwatch(bind_command, command, chan, nick, auth, args);
+	}
+
+	// partchannel
+	if (boost::iequals(bind_command, "partchannel"))
+	{
+		if (args.size() == 0)
+		{
+			if (U.GetGod(nick) == 1)
+			{
+				partchannel(chan, nick, auth, bind_access);
+			}
+			else
+			{
+				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+				Send(returnstring);
+			}
+		}
+		else
+		{
+			//help(bind_command);
+		}
+		overwatch(bind_command, command, chan, nick, auth, args);
+	}
+
 	//say
 	if (boost::iequals(bind_command, "say"))
 	{
@@ -560,7 +604,6 @@ void OCommands::delchannel(string chan, string nick, string auth, int oa)
     ChannelsInterface& C = Global::Instance().get_Channels();
     string returnstring;
     int oaccess = U.GetOaccess(nick);
-    cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
         std::string ChannelUuid = C.GetCid(chan);
@@ -593,11 +636,64 @@ void OCommands::delchannel(string chan, string nick, string auth, int oa)
     }
 }
 
+void OCommands::joinchannel(string chan, string nick, string auth, int oa)
+{
+    UsersInterface& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    string returnstring;
+    int oaccess = U.GetOaccess(nick);
+    if (oaccess >= oa)
+    {
+        std::string ChannelUuid = C.GetCid(chan);
+        string sqlstring;
+        //if (ChannelUuid != "NULL")
+        {
+            string partstr = "JOIN " + chan + "\r\n";
+            Send(partstr);
+            returnstring = "NOTICE " + nick + " :" + irc_reply("joinchannel", U.GetLanguage(nick)) + "\r\n";
+            returnstring = irc_reply_replace(returnstring, "$channel$", chan);
+            Send(returnstring);
+        }
+        /*else
+        {
+            returnstring = "NOTICE " + nick + " :" + irc_reply("joinchannel_nochannel", U.GetLanguage(nick)) + "\r\n";
+            returnstring = irc_reply_replace(returnstring, "$channel$", chan);
+            Send(returnstring);
+        }*/
+    }
+    else
+    {
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
+    }
+}
+
+void OCommands::partchannel(string chan, string nick, string auth, int oa)
+{
+    UsersInterface& U = Global::Instance().get_Users();
+    //ChannelsInterface& C = Global::Instance().get_Channels();
+    string returnstring;
+    int oaccess = U.GetOaccess(nick);
+    if (oaccess >= oa)
+    {
+		string partstr = "PART " + chan + "\r\n";
+		Send(partstr);
+		returnstring = "NOTICE " + nick + " :" + irc_reply("partchannel", U.GetLanguage(nick)) + "\r\n";
+		returnstring = irc_reply_replace(returnstring, "$channel$", chan);
+		Send(returnstring);
+    }
+    else
+    {
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
+    }
+}
+
 void OCommands::addobind(string nick, string auth, string command, string newbind, int reqaccess, int oa)
 {
     UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
-    bool exists = false;
+    //bool exists = false;
     std::vector< std::string > binds = DatabaseData::Instance().GetBindVectorByBindName(command_table);
     int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
@@ -679,7 +775,7 @@ void OCommands::addbind(string nick, string auth, string command, string newbind
 {
     UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
-    bool exists = false;
+    //bool exists = false;
     std::vector< std::string > binds = DatabaseData::Instance().GetBindVectorByBindName("ChannelBotCommands");
     int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;

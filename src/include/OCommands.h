@@ -31,6 +31,8 @@ private:
     void god(string nick, string auth, int oa);
     void addchannel(string chan, string nick, string auth, string reqnick, string reqauth, int oa);
     void delchannel(string chan, string nick, string auth, int oa);
+    void joinchannel(string chan, string nick, string auth, int oa);
+    void partchannel(string chan, string nick, string auth, int oa);
     void addobind(string nick, string auth, string command, string newbind, int reqaccess, int oa);
     void delobind(string nick, string auth, string command, string newbind, int oa);
     void addbind(string nick, string auth, string command, string newbind, int reqaccess, int oa);

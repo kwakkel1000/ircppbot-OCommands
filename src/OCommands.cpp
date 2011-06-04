@@ -492,7 +492,7 @@ void OCommands::say(string chan, string nick, string auth, string saystring, int
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
-        string returnstr = "PRIVMSG " + chan + " :" + saystring + "\r\n";
+        string returnstr = "PRIVMSG " + chan + " :" + char(15) + saystring + "\r\n";
         Send(returnstr);
         returnstring = "NOTICE " + nick + " :" + irc_reply("say", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);

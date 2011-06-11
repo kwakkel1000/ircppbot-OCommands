@@ -527,7 +527,7 @@ void OCommands::broadcast(string nick, string auth, string saystring, int oa)
         std::vector< std::string > vChannels = C.GetChannels();
         for (unsigned int uiChannelsIndex = 0; uiChannelsIndex < vChannels.size(); uiChannelsIndex++)
         {
-            string returnstr = "PRIVMSG " + vChannels[uiChannelsIndex] + " :" + char(15) + saystring + "\r\n";
+            string returnstr = "PRIVMSG " + vChannels[uiChannelsIndex] + " :" + char(2) + "[BROADCAST] " + char(15) + saystring + "\r\n";
             Send(returnstr);
         }
         returnstring = "NOTICE " + nick + " :" + irc_reply("broadcast", U.GetLanguage(nick)) + "\r\n";

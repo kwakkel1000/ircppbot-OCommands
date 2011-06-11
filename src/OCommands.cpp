@@ -25,14 +25,14 @@ OCommands::OCommands()
 OCommands::~OCommands()
 {
     stop();
-	Global::Instance().get_IrcData().DelConsumer(mpDataInterface);
+    Global::Instance().get_IrcData().DelConsumer(mpDataInterface);
     delete mpDataInterface;
 }
 
 void OCommands::Init(DataInterface* pData)
 {
-	mpDataInterface = pData;
-	mpDataInterface->Init(false, false, false, true);
+    mpDataInterface = pData;
+    mpDataInterface->Init(false, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
     ocommandstrigger = Global::Instance().get_ConfigReader().GetString("ocommandstrigger");
     command_table = "OCommandsCommands";
@@ -72,371 +72,402 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
     std::string auth = U.GetAuth(nick);
     std::string bind_command = DatabaseData::Instance().GetCommandByBindNameAndBind(command_table, command);
     int bind_access = DatabaseData::Instance().GetAccessByBindNameAndBind(command_table, command);
-	std::cout << bind_command << " " << bind_access << std::endl;
+    std::cout << bind_command << " " << bind_access << std::endl;
 
-	//debug
-	if (boost::iequals(bind_command, "debug"))
-	{
-		if (args.size() == 0)
-		{
+    //debug
+    if (boost::iequals(bind_command, "debug"))
+    {
+        if (args.size() == 0)
+        {
             U.Debug();
             Global::Instance().get_Channels().Debug();
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//ocommandscommands
-	if (boost::iequals(bind_command, "ocommandscommands"))
-	{
-		if (args.size() == 0)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				ocommandscommands(nick, auth, bind_access);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //ocommandscommands
+    if (boost::iequals(bind_command, "ocommandscommands"))
+    {
+        if (args.size() == 0)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                ocommandscommands(nick, auth, bind_access);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//god
-	if (boost::iequals(bind_command, "god"))
-	{
-		if (args.size() == 0)
-		{
-			god(nick, auth, bind_access);
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //god
+    if (boost::iequals(bind_command, "god"))
+    {
+        if (args.size() == 0)
+        {
+            god(nick, auth, bind_access);
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//delchannel
-	if (boost::iequals(bind_command, "delchannel"))
-	{
-		if (args.size() == 0)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				delchannel(chan, nick, auth, bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //delchannel
+    if (boost::iequals(bind_command, "delchannel"))
+    {
+        if (args.size() == 0)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                delchannel(chan, nick, auth, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//addchannel
-	if (boost::iequals(bind_command, "addchannel"))
-	{
-		if (args.size() == 1)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				addchannel(chan, nick, auth, args[0], U.GetAuth(args[0]), bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //addchannel
+    if (boost::iequals(bind_command, "addchannel"))
+    {
+        if (args.size() == 1)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                addchannel(chan, nick, auth, args[0], U.GetAuth(args[0]), bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	// joinchannel
-	if (boost::iequals(bind_command, "joinchannel"))
-	{
-		if (args.size() == 0)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				joinchannel(chan, nick, auth, bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    // joinchannel
+    if (boost::iequals(bind_command, "joinchannel"))
+    {
+        if (args.size() == 0)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                joinchannel(chan, nick, auth, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	// partchannel
-	if (boost::iequals(bind_command, "partchannel"))
-	{
-		if (args.size() == 0)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				partchannel(chan, nick, auth, bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    // partchannel
+    if (boost::iequals(bind_command, "partchannel"))
+    {
+        if (args.size() == 0)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                partchannel(chan, nick, auth, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//say
-	if (boost::iequals(bind_command, "say"))
-	{
-		if (args.size() >= 1)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				std::string saystring;
-				for (unsigned int j = 0; j < args.size()-1; j++)
-				{
-					saystring = saystring + args[j] + " ";
-				}
-				if (args.size() > 0)
-				{
-					saystring = saystring + args[args.size()-1];
-				}
-				say(chan, nick, auth, saystring, bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    // broadcast
+    if (boost::iequals(bind_command, "broadcast"))
+    {
+        if (args.size() >= 1)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                std::string saystring;
+                for (unsigned int j = 0; j < args.size()-1; j++)
+                {
+                    saystring = saystring + args[j] + " ";
+                }
+                if (args.size() > 0)
+                {
+                    saystring = saystring + args[args.size()-1];
+                }
+                broadcast(nick, auth, saystring, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	// action
-	if (boost::iequals(bind_command, "action"))
-	{
-		if (args.size() >= 1)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				std::string saystring;
-				for (unsigned int j = 0; j < args.size()-1; j++)
-				{
-					saystring = saystring + args[j] + " ";
-				}
-				if (args.size() > 0)
-				{
-					saystring = saystring + args[args.size()-1];
-				}
-				action(chan, nick, auth, saystring, bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //say
+    if (boost::iequals(bind_command, "say"))
+    {
+        if (args.size() >= 1)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                std::string saystring;
+                for (unsigned int j = 0; j < args.size()-1; j++)
+                {
+                    saystring = saystring + args[j] + " ";
+                }
+                if (args.size() > 0)
+                {
+                    saystring = saystring + args[args.size()-1];
+                }
+                say(chan, nick, auth, saystring, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//raw
-	if (boost::iequals(bind_command, "raw"))
-	{
-		if (args.size() >= 1)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				std::string dostring;
-				for (unsigned int j = 0; j < args.size()-1; j++)
-				{
-					dostring = dostring + args[j] + " ";
-				}
-				if (args.size() > 0)
-				{
-					dostring = dostring + args[args.size()-1];
-				}
-				raw(nick, auth, dostring, bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    // action
+    if (boost::iequals(bind_command, "action"))
+    {
+        if (args.size() >= 1)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                std::string saystring;
+                for (unsigned int j = 0; j < args.size()-1; j++)
+                {
+                    saystring = saystring + args[j] + " ";
+                }
+                if (args.size() > 0)
+                {
+                    saystring = saystring + args[args.size()-1];
+                }
+                action(chan, nick, auth, saystring, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//changeolevel
-	if (boost::iequals(bind_command, "changeolevel"))
-	{
-		if (args.size() == 2)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				changeolevel(nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //raw
+    if (boost::iequals(bind_command, "raw"))
+    {
+        if (args.size() >= 1)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                std::string dostring;
+                for (unsigned int j = 0; j < args.size()-1; j++)
+                {
+                    dostring = dostring + args[j] + " ";
+                }
+                if (args.size() > 0)
+                {
+                    dostring = dostring + args[args.size()-1];
+                }
+                raw(nick, auth, dostring, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//delobind
-	if (boost::iequals(bind_command, "delobind"))
-	{
-		if (args.size() == 2)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				delobind(nick, auth, args[0], args[1], bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //changeolevel
+    if (boost::iequals(bind_command, "changeolevel"))
+    {
+        if (args.size() == 2)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                changeolevel(nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//delbind
-	if (boost::iequals(bind_command, "delbind"))
-	{
-		if (args.size() == 2)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				delbind(nick, auth, args[0], args[1], bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //delobind
+    if (boost::iequals(bind_command, "delobind"))
+    {
+        if (args.size() == 2)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                delobind(nick, auth, args[0], args[1], bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//addobind
-	if (boost::iequals(bind_command, "addobind"))
-	{
-		if (args.size() == 3)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				addobind(nick, auth, args[0], args[1], convertString(args[2]), bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //delbind
+    if (boost::iequals(bind_command, "delbind"))
+    {
+        if (args.size() == 2)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                delbind(nick, auth, args[0], args[1], bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//addbind
-	if (boost::iequals(bind_command, "addbind"))
-	{
-		if (args.size() == 3)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				addbind(nick, auth, args[0], args[1], convertString(args[2]), bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //addobind
+    if (boost::iequals(bind_command, "addobind"))
+    {
+        if (args.size() == 3)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                addobind(nick, auth, args[0], args[1], convertString(args[2]), bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 
-	//simulate
-	if (boost::iequals(bind_command, "simulate"))
-	{
-		if (args.size() >= 3)
-		{
-			if (U.GetGod(nick) == 1)
-			{
-				std::vector< std::string > simulate_args;
-				for (unsigned int j = 2; j < args.size(); j++)
-				{
-					simulate_args.push_back(args[j]);
-				}
-				simulate(nick, auth, chan, args[0], args[1], simulate_args, bind_access);
-			}
-			else
-			{
-				std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
-				Send(returnstring);
-			}
-		}
-		else
-		{
-			//help(bind_command);
-		}
-		overwatch(bind_command, command, chan, nick, auth, args);
-	}
+    //addbind
+    if (boost::iequals(bind_command, "addbind"))
+    {
+        if (args.size() == 3)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                addbind(nick, auth, args[0], args[1], convertString(args[2]), bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
+
+    //simulate
+    if (boost::iequals(bind_command, "simulate"))
+    {
+        if (args.size() >= 3)
+        {
+            if (U.GetGod(nick) == 1)
+            {
+                std::vector< std::string > simulate_args;
+                for (unsigned int j = 2; j < args.size(); j++)
+                {
+                    simulate_args.push_back(args[j]);
+                }
+                simulate(nick, auth, chan, args[0], args[1], simulate_args, bind_access);
+            }
+            else
+            {
+                std::string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                Send(returnstring);
+            }
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
 }
 
 void OCommands::god(string nick, string auth, int oa)
@@ -460,7 +491,7 @@ void OCommands::god(string nick, string auth, int oa)
     }
     else
     {
-    	int oaccess = U.GetOaccess(nick);
+        int oaccess = U.GetOaccess(nick);
         if (oaccess >= oa)
         {
             vector<string> nicks = U.GetNicks(auth);
@@ -481,6 +512,31 @@ void OCommands::god(string nick, string auth, int oa)
             returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
             Send(returnstring);
         }
+    }
+}
+
+void OCommands::broadcast(string nick, string auth, string saystring, int oa)
+{
+    UsersInterface& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    string returnstring;
+    int oaccess = U.GetOaccess(nick);
+    cout << convertInt(oaccess) << endl;
+    if (oaccess >= oa)
+    {
+        std::vector< std::string > vChannels = C.GetChannels();
+        for (unsigned int uiChannelsIndex = 0; uiChannelsIndex < vChannels.size(); uiChannelsIndex++)
+        {
+            string returnstr = "PRIVMSG " + vChannels[uiChannelsIndex] + " :" + char(15) + saystring + "\r\n";
+            Send(returnstr);
+        }
+        returnstring = "NOTICE " + nick + " :" + irc_reply("broadcast", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
+    }
+    else
+    {
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
     }
 }
 
@@ -557,30 +613,30 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqnick
         {
             if (C.GetCid(chan) == "NULL")
             {
-				boost::uuids::uuid uuid = boost::uuids::random_generator()();
-				std::stringstream ss;
-				ss << uuid;
-				std::string ChannelUuid = ss.str();
-				std::cout << "ChannelUuid: " << ChannelUuid<< std::endl;
+                boost::uuids::uuid uuid = boost::uuids::random_generator()();
+                std::stringstream ss;
+                ss << uuid;
+                std::string ChannelUuid = ss.str();
+                std::cout << "ChannelUuid: " << ChannelUuid<< std::endl;
                 std::string UserUuid = U.GetUid(reqnick);
-				C.RegistrateChannel(ChannelUuid, chan);
+                C.RegistrateChannel(ChannelUuid, chan);
                 if ((ChannelUuid != "NULL") && (UserUuid != "NULL"))
                 {
-					C.AddUserToChannel(ChannelUuid, UserUuid, 500);
+                    C.AddUserToChannel(ChannelUuid, UserUuid, 500);
                 }
                 string joinstr = "JOIN " + chan + "\r\n";
                 Send(joinstr);
                 C.AddChannel(chan);
-				std::string whostring;
-				if (Global::Instance().get_ConfigReader().GetString("whoextra") == "true")
-				{
-					whostring = "WHO " + chan + " %ncaf\r\n";
-				}
-				else
-				{
-					whostring = "WHO " + chan + "\r\n";
-				}
-				Send(whostring);
+                std::string whostring;
+                if (Global::Instance().get_ConfigReader().GetString("whoextra") == "true")
+                {
+                    whostring = "WHO " + chan + " %ncaf\r\n";
+                }
+                else
+                {
+                    whostring = "WHO " + chan + "\r\n";
+                }
+                Send(whostring);
                 returnstring = "NOTICE " + nick + " :" + irc_reply("addchannel", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$nick$", nick);
                 returnstring = irc_reply_replace(returnstring, "$auth$", auth);
@@ -610,7 +666,7 @@ void OCommands::delchannel(string chan, string nick, string auth, int oa)
         string sqlstring;
         if (ChannelUuid != "NULL")
         {
-			C.UnregistrateChannel(ChannelUuid);
+            C.UnregistrateChannel(ChannelUuid);
             vector<string> nicks = C.GetNicks(chan);
             for (unsigned int i = nicks.size(); i > 0; i--)
             {
@@ -676,11 +732,11 @@ void OCommands::partchannel(string chan, string nick, string auth, int oa)
     int oaccess = U.GetOaccess(nick);
     if (oaccess >= oa)
     {
-		string partstr = "PART " + chan + "\r\n";
-		Send(partstr);
-		returnstring = "NOTICE " + nick + " :" + irc_reply("partchannel", U.GetLanguage(nick)) + "\r\n";
-		returnstring = irc_reply_replace(returnstring, "$channel$", chan);
-		Send(returnstring);
+        string partstr = "PART " + chan + "\r\n";
+        Send(partstr);
+        returnstring = "NOTICE " + nick + " :" + irc_reply("partchannel", U.GetLanguage(nick)) + "\r\n";
+        returnstring = irc_reply_replace(returnstring, "$channel$", chan);
+        Send(returnstring);
     }
     else
     {
@@ -928,26 +984,26 @@ void OCommands::ocommandscommands(string mNick, string auth, int oa)
             Send(returnstring);
 
 
-			returnstring = "NOTICE " + mNick + " :";
-			returnstring = returnstring + fillspace("bind", 20);
-			returnstring = returnstring + fillspace("command", 20);
-			returnstring = returnstring + "access\r\n";
-			Send(returnstring);
-			std::vector< std::string > binds = DatabaseData::Instance().GetBindVectorByBindName(command_table);
-			sort (binds.begin(), binds.end());
-			for (unsigned int binds_it = 0; binds_it < binds.size(); binds_it++)
-			{
-				std::string bind_access = convertInt(DatabaseData::Instance().GetAccessByBindNameAndBind(command_table, binds[binds_it]));
-				std::string bind_command = DatabaseData::Instance().GetCommandByBindNameAndBind(command_table, binds[binds_it]);
-				if (bind_command != "")
-				{
-					returnstring = "NOTICE " + mNick + " :";
-					returnstring = returnstring + fillspace(binds[binds_it], 20);
-					returnstring = returnstring + fillspace(bind_command, 20);
-					returnstring = returnstring + bind_access + "\r\n";
-					Send(returnstring);
-				}
-			}
+            returnstring = "NOTICE " + mNick + " :";
+            returnstring = returnstring + fillspace("bind", 20);
+            returnstring = returnstring + fillspace("command", 20);
+            returnstring = returnstring + "access\r\n";
+            Send(returnstring);
+            std::vector< std::string > binds = DatabaseData::Instance().GetBindVectorByBindName(command_table);
+            sort (binds.begin(), binds.end());
+            for (unsigned int binds_it = 0; binds_it < binds.size(); binds_it++)
+            {
+                std::string bind_access = convertInt(DatabaseData::Instance().GetAccessByBindNameAndBind(command_table, binds[binds_it]));
+                std::string bind_command = DatabaseData::Instance().GetCommandByBindNameAndBind(command_table, binds[binds_it]);
+                if (bind_command != "")
+                {
+                    returnstring = "NOTICE " + mNick + " :";
+                    returnstring = returnstring + fillspace(binds[binds_it], 20);
+                    returnstring = returnstring + fillspace(bind_command, 20);
+                    returnstring = returnstring + bind_access + "\r\n";
+                    Send(returnstring);
+                }
+            }
             /*vector<string> sortbinds = binds;
             sort (sortbinds.begin(), sortbinds.end());
             vector<string> command_reply_vector = lineout(sortbinds, amount, length);

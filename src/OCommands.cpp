@@ -120,6 +120,20 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
         overwatch(bind_command, command, chan, nick, auth, args);
     }
 
+    // listchannels
+    if (boost::iequals(bind_command, "listchannels"))
+    {
+        if (args.size() == 0)
+        {
+            listchannels(nick, auth, bind_access);
+        }
+        else
+        {
+            //help(bind_command);
+        }
+        overwatch(bind_command, command, chan, nick, auth, args);
+    }
+
     //delchannel
     if (boost::iequals(bind_command, "delchannel"))
     {
@@ -515,13 +529,37 @@ void OCommands::god(string nick, string auth, int oa)
     }
 }
 
-void OCommands::broadcast(string nick, string auth, string saystring, int oa)
+void OCommands::listchannels(std::string sNick, std::string sAuth, int iOperAccess)
+{
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
+    if (U.GetOaccess(sNick) >= iOperAccess)
+    {
+        int iChannelCount = 0;
+
+        iChannelCount = C.GetChannels().size();
+        std::vector< std::string > vChannels = C.GetChannels();
+        sort(vChannels.begin(), vChannels.end());
+        std::string sReplyString;
+        for (unsigned int uiChannelsIndex = 0 ; uiChannelsIndex < vChannels.size(); uiChannelsIndex++ )
+        {
+            sReplyString = irc_reply("LIST_CHANNELS_CHANNEL", U.GetLanguage(sNick));
+            sReplyString = irc_reply_replace(sReplyString, "$Channel$", vChannels[uiChannelsIndex]);
+            Send(Global::Instance().get_Reply().irc_notice(sNick, sReplyString));
+        }
+    }
+    else
+    {
+        Send(Global::Instance().get_Reply().irc_notice(sNick, irc_reply("need_oaccess", U.GetLanguage(sNick))));
+    }
+}
+
+void OCommands::broadcast(std::string nick, std::string auth, std::string saystring, int oa)
 {
     UsersInterface& U = Global::Instance().get_Users();
     ChannelsInterface& C = Global::Instance().get_Channels();
-    string returnstring;
+    std::string returnstring;
     int oaccess = U.GetOaccess(nick);
-    cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
         std::vector< std::string > vChannels = C.GetChannels();
@@ -535,8 +573,7 @@ void OCommands::broadcast(string nick, string auth, string saystring, int oa)
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
-        Send(returnstring);
+        Send(Global::Instance().get_Reply().irc_notice(nick, irc_reply("need_oaccess", U.GetLanguage(nick))));
     }
 }
 

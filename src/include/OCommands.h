@@ -39,6 +39,7 @@ private:
     void delbind(string nick, string auth, string command, string newbind, int oa);
     void changeolevel(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa);
     void ousers(string nick, int oa);
+    void listchannels(std::string sNick, std::string sAuth, int iOperAccess);
     void broadcast(string nick, string auth, string saystring, int oa);
     void say(string chan, string nick, string auth, string saystring, int oa);
     void action(string chan, string nick, string auth, string saystring, int oa);
